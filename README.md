@@ -2,7 +2,7 @@
 
 A professional portfolio site showcasing technical writing samples following docs-as-code best practices. Built with clean HTML, CSS, and JavaScript—ready to deploy to GitHub Pages.
 
-## 🚀 Quick Deploy to GitHub Pages
+## Quick Deploy to GitHub Pages
 
 ### Option 1: New Repository
 
@@ -32,7 +32,7 @@ A professional portfolio site showcasing technical writing samples following doc
 2. Follow steps 2-4 from Option 1
 3. Your site will automatically be published at `https://YOUR-USERNAME.github.io/`
 
-## ✨ Features
+## ✨Features
 
 ### Design Elements
 - **Editorial Typography**: Instrument Serif for headings, Crimson Pro for body text, IBM Plex Mono for code
@@ -63,7 +63,7 @@ The site includes 12 diverse technical writing samples across three categories:
 - Configuration Reference (YAML, JSON Schema)
 - Docusaurus Documentation (React, MDX)
 
-## 🎨 Customization
+## Customization
 
 ### Adding New Samples
 
@@ -119,7 +119,7 @@ To add a new category filter:
    <article class="sample-card" data-category="tutorials">
    ```
 
-## 📁 File Structure
+## File Structure
 
 ```
 docs-portfolio/
@@ -134,7 +134,7 @@ docs-portfolio/
 - **Vanilla JavaScript**: Filtering and scroll animations
 - **Google Fonts**: Instrument Serif, Crimson Pro, IBM Plex Mono
 
-## 🌐 Live Site Features
+## Live Site Features
 
 - **Tab Filtering**: Click category tabs to filter samples
 - **Hover Effects**: Cards lift and show accent border on hover
@@ -142,7 +142,7 @@ docs-portfolio/
 - **Responsive Design**: Adapts seamlessly to all screen sizes
 - **Fast Performance**: No frameworks, just optimized vanilla code
 
-## 💡 Docs-as-Code Best Practices Demonstrated
+## Docs-as-Code Best Practices Demonstrated
 
 This portfolio showcases modern documentation practices:
 
@@ -153,7 +153,7 @@ This portfolio showcases modern documentation practices:
 5. **Toolchain Diversity**: MkDocs, Docusaurus, Sphinx, Hugo
 6. **Automation**: Auto-generated from OpenAPI, JSDoc, godoc
 
-## 📝 Customizing Content
+## Customizing Content
 
 ### Update Header
 Edit the header section in `index.html`:
@@ -169,7 +169,7 @@ Modify footer links:
 <a href="https://linkedin.com/in/YOUR-PROFILE" class="footer-link">LinkedIn</a>
 ```
 
-## 🎯 SEO Optimization
+## SEO Optimization
 
 The site includes:
 - Semantic HTML5 markup
@@ -183,7 +183,7 @@ To further optimize:
 3. Add `sitemap.xml` for better indexing
 4. Use descriptive, keyword-rich URLs for linked docs
 
-## 📱 Browser Support
+## Browser Support
 
 - Chrome (latest)
 - Firefox (latest)
@@ -191,11 +191,11 @@ To further optimize:
 - Edge (latest)
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
-## 🤝 Contributing
+## Contributing
 
 Feel free to fork this template and customize it for your own portfolio!
 
-## 📄 License
+## License
 
 Free to use and modify for your personal portfolio site.
 
