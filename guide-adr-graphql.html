@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-0015: Adopt GraphQL for Client-Server Communication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --bg-alt: #fafbfc;
+            --bg-code: #f6f8fa;
+            --text: #24292f;
+            --text-secondary: #57606a;
+            --text-muted: #6e7781;
+            --border: #d0d7de;
+            --accent: #0969da;
+            --success: #1a7f37;
+            --warning: #bf8700;
+            --danger: #cf222e;
+            --purple: #8250df;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+            color: var(--text);
+            background: var(--bg-alt);
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        /* Header */
+        .adr-header {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .adr-number {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            line-height: 1.2;
+            color: var(--text);
+        }
+
+        .adr-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .meta-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .meta-value {
+            font-size: 15px;
+            color: var(--text);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .status-accepted {
+            background: #dcffe4;
+            color: var(--success);
+        }
+
+        .status-proposed {
+            background: #fff8c5;
+            color: var(--warning);
+        }
+
+        .status-deprecated {
+            background: #ffebe9;
+            color: var(--danger);
+        }
+
+        /* Content Sections */
+        .content {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            font-size: 19px;
+            font-weight: 600;
+            margin: 25px 0 15px;
+            color: var(--text);
+        }
+
+        p {
+            margin-bottom: 18px;
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0 20px 30px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        li strong {
+            color: var(--text);
+        }
+
+        /* Code */
+        code {
+            background: var(--bg-code);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: var(--purple);
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            border: none;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 14px;
+        }
+
+        .comparison-table th {
+            background: var(--bg-alt);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .comparison-table td {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--bg-alt);
+        }
+
+        /* Pros/Cons */
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+
+        .pros {
+            background: #f0fff4;
+            border-color: var(--success);
+        }
+
+        .cons {
+            background: #fff5f5;
+            border-color: var(--danger);
+        }
+
+        .pros h4, .cons h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pros h4 {
+            color: var(--success);
+        }
+
+        .cons h4 {
+            color: var(--danger);
+        }
+
+        .pros ul, .cons ul {
+            margin: 0 0 0 20px;
+        }
+
+        .pros li, .cons li {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        /* Callout Box */
+        .callout {
+            background: #ddf4ff;
+            border-left: 4px solid var(--accent);
+            padding: 20px 24px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .callout p {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        /* Related ADRs */
+        .related-adrs {
+            display: grid;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .related-adr {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .related-adr:hover {
+            border-color: var(--accent);
+            background: var(--bg);
+        }
+
+        .related-adr-number {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .related-adr-title {
+            flex: 1;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            .adr-header,
+            .content {
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .adr-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ADR Header -->
+        <header class="adr-header">
+            <div class="adr-number">ADR-0015</div>
+            <h1>Adopt GraphQL for Client-Server Communication</h1>
+            
+            <div class="adr-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Status</div>
+                    <div class="meta-value">
+                        <span class="status-badge status-accepted">Accepted</span>
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Date</div>
+                    <div class="meta-value">2024-12-15</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Deciders</div>
+                    <div class="meta-value">Architecture Team, Backend Team</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Technical Story</div>
+                    <div class="meta-value">JIRA-1234</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Context and Problem Statement -->
+        <section class="content">
+            <h2>Context and Problem Statement</h2>
+            <p>
+                Our mobile and web applications currently communicate with backend services through a collection 
+                of REST APIs. As our product has evolved, we've encountered several challenges:
+            </p>
+            <ul>
+                <li><strong>Over-fetching:</strong> Mobile clients often receive significantly more data than needed, 
+                    impacting performance on slower networks</li>
+                <li><strong>Under-fetching:</strong> Complex views require multiple API calls (N+1 problem), 
+                    leading to poor user experience</li>
+                <li><strong>API versioning complexity:</strong> Managing multiple API versions as features evolve 
+                    has become increasingly difficult</li>
+                <li><strong>Development velocity:</strong> Frontend teams are blocked waiting for new endpoints 
+                    when requirements change</li>
+                <li><strong>Documentation maintenance:</strong> Keeping REST API documentation in sync with 
+                    implementation requires significant manual effort</li>
+            </ul>
+            <p>
+                We need to evaluate whether adopting GraphQL could address these challenges while considering 
+                the trade-offs and migration costs.
+            </p>
+        </section>
+
+        <!-- Decision Drivers -->
+        <section class="content">
+            <h2>Decision Drivers</h2>
+            <ul>
+                <li>Mobile application performance, especially on slower networks (3G/4G)</li>
+                <li>Developer productivity and velocity for frontend teams</li>
+                <li>Backend team capacity and maintenance burden</li>
+                <li>API discoverability and self-documentation</li>
+                <li>Type safety across the full stack</li>
+                <li>Support for real-time data subscriptions for future features</li>
+                <li>Operational complexity and monitoring requirements</li>
+                <li>Migration effort and backward compatibility with existing clients</li>
+            </ul>
+        </section>
+
+        <!-- Considered Options -->
+        <section class="content">
+            <h2>Considered Options</h2>
+            <ol>
+                <li><strong>Continue with REST APIs</strong> - Maintain current architecture with incremental improvements</li>
+                <li><strong>Adopt GraphQL</strong> - Implement GraphQL layer alongside REST for new features</li>
+                <li><strong>Use gRPC with gRPC-Web</strong> - Adopt gRPC for strong typing and performance</li>
+                <li><strong>Implement Backend for Frontend (BFF) pattern</strong> - Create specialized REST APIs per client type</li>
+            </ol>
+        </section>
+
+        <!-- Decision Outcome -->
+        <section class="content">
+            <h2>Decision Outcome</h2>
+            <p>
+                Chosen option: <strong>"Adopt GraphQL"</strong>, because it best addresses our core problems 
+                around data fetching efficiency, developer velocity, and API evolution while providing a clear 
+                migration path that doesn't require a big-bang rewrite.
+            </p>
+
+            <h3>Implementation Plan</h3>
+            <ol>
+                <li><strong>Phase 1 (Q1 2025):</strong> Stand up GraphQL server with Apollo Server, implement 
+                    authentication and authorization</li>
+                <li><strong>Phase 2 (Q2 2025):</strong> Migrate user profile and settings features to GraphQL, 
+                    use as learning opportunity</li>
+                <li><strong>Phase 3 (Q2-Q3 2025):</strong> Migrate high-traffic features (feed, notifications) 
+                    to demonstrate performance benefits</li>
+                <li><strong>Phase 4 (Q4 2025):</strong> Complete migration of remaining features, establish 
+                    GraphQL as primary API</li>
+                <li><strong>Phase 5 (2026):</strong> Deprecate and retire REST APIs after monitoring usage drops below 5%</li>
+            </ol>
+
+            <div class="callout">
+                <div class="callout-title">🎯 Success Metrics</div>
+                <p>
+                    We will measure success through: 50% reduction in mobile data transfer, 30% decrease in 
+                    API response times for complex queries, 40% improvement in frontend feature velocity 
+                    (measured by story cycle time), and maintaining 99.9% API availability during migration.
+                </p>
+            </div>
+
+            <h3>Consequences</h3>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ Positive Consequences</h4>
+                    <ul>
+                        <li>Clients request exactly the data they need, reducing bandwidth and improving mobile performance</li>
+                        <li>Frontend teams can iterate faster without backend changes for new data requirements</li>
+                        <li>Schema serves as self-documenting contract between teams</li>
+                        <li>Strong typing across stack reduces runtime errors</li>
+                        <li>Built-in introspection enables excellent developer tools (GraphiQL, Apollo Studio)</li>
+                        <li>Foundation for future real-time features with subscriptions</li>
+                    </ul>
+                </div>
+
+                <div class="cons">
+                    <h4>❌ Negative Consequences</h4>
+                    <ul>
+                        <li>Backend team needs to learn GraphQL concepts and best practices</li>
+                        <li>More complex caching strategy compared to REST (HTTP caching less effective)</li>
+                        <li>Requires new monitoring and observability tools for query performance</li>
+                        <li>Potential for expensive queries if not properly limited (depth, complexity)</li>
+                        <li>6-9 month migration period where both APIs must be maintained</li>
+                        <li>Additional infrastructure costs during dual-API period</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison of Options -->
+        <section class="content">
+            <h2>Comparison of Options</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Criteria</th>
+                        <th>REST (Status Quo)</th>
+                        <th>GraphQL</th>
+                        <th>gRPC</th>
+                        <th>BFF Pattern</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Efficiency</strong></td>
+                        <td>❌ Over/under-fetching issues</td>
+                        <td>✅ Precise data fetching</td>
+                        <td>✅ Efficient binary protocol</td>
+                        <td>✅ Optimized per client</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Developer Experience</strong></td>
+                        <td>⚠️ Requires endpoint changes</td>
+                        <td>✅ Self-documenting, flexible</td>
+                        <td>⚠️ Steeper learning curve</td>
+                        <td>❌ Duplicate logic across BFFs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type Safety</strong></td>
+                        <td>❌ No native typing</td>
+                        <td>✅ Schema-based typing</td>
+                        <td>✅ Protobuf definitions</td>
+                        <td>⚠️ Depends on implementation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Browser Support</strong></td>
+                        <td>✅ Universal support</td>
+                        <td>✅ Works everywhere</td>
+                        <td>⚠️ Requires gRPC-Web</td>
+                        <td>✅ Standard HTTP</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Caching</strong></td>
+                        <td>✅ HTTP caching works well</td>
+                        <td>⚠️ Requires normalized cache</td>
+                        <td>⚠️ Custom caching needed</td>
+                        <td>✅ HTTP caching works</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Real-time Support</strong></td>
+                        <td>❌ Requires WebSocket addition</td>
+                        <td>✅ Built-in subscriptions</td>
+                        <td>✅ Bi-directional streaming</td>
+                        <td>❌ Per-BFF implementation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ecosystem Maturity</strong></td>
+                        <td>✅ Extremely mature</td>
+                        <td>✅ Mature and growing</td>
+                        <td>⚠️ Less web tooling</td>
+                        <td>✅ Well understood</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Migration Complexity</strong></td>
+                        <td>✅ No migration needed</td>
+                        <td>⚠️ Gradual migration possible</td>
+                        <td>❌ Complete rewrite</td>
+                        <td>⚠️ Moderate effort</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Technical Details -->
+        <section class="content">
+            <h2>Technical Details</h2>
+            
+            <h3>Technology Stack</h3>
+            <ul>
+                <li><strong>Server:</strong> Apollo Server 4.x with Express.js</li>
+                <li><strong>Schema Management:</strong> Apollo Studio for schema registry and change management</li>
+                <li><strong>Client:</strong> Apollo Client 3.x for React/React Native, GraphQL Codegen for TypeScript types</li>
+                <li><strong>Monitoring:</strong> Apollo Studio for query performance, Datadog for infrastructure metrics</li>
+                <li><strong>Security:</strong> Query complexity analysis, depth limiting, and per-field authorization</li>
+            </ul>
+
+            <h3>Example Schema</h3>
+            <pre><code>type Query {
+  user(id: ID!): User
+  currentUser: User
+  posts(limit: Int = 10, offset: Int = 0): PostConnection!
+}
+
+type User {
+  id: ID!
+  username: String!
+  email: String!
+  profile: Profile!
+  posts: [Post!]!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String!
+  author: User!
+  createdAt: DateTime!
+  comments: [Comment!]!
+}
+
+type Mutation {
+  createPost(input: CreatePostInput!): Post!
+  updatePost(id: ID!, input: UpdatePostInput!): Post!
+  deletePost(id: ID!): Boolean!
+}</code></pre>
+
+            <h3>Rate Limiting Strategy</h3>
+            <p>
+                Implement query complexity analysis to prevent expensive queries. Each field has a complexity score, 
+                and queries exceeding 1000 complexity points are rejected. Additionally, implement per-user rate 
+                limits of 1000 requests per hour for authenticated users.
+            </p>
+        </section>
+
+        <!-- Risks and Mitigation -->
+        <section class="content">
+            <h2>Risks and Mitigation</h2>
+            
+            <h3>Identified Risks</h3>
+            <ul>
+                <li>
+                    <strong>Risk:</strong> Backend team lacks GraphQL experience<br>
+                    <strong>Mitigation:</strong> Allocate 2 weeks for team training, hire GraphQL consultant for 
+                    first 3 months, start with low-risk features
+                </li>
+                <li>
+                    <strong>Risk:</strong> Performance issues from complex queries<br>
+                    <strong>Mitigation:</strong> Implement query complexity limits, depth limits, and DataLoader 
+                    for N+1 query prevention from day 1
+                </li>
+                <li>
+                    <strong>Risk:</strong> Increased operational complexity during migration<br>
+                    <strong>Mitigation:</strong> Maintain feature parity between REST and GraphQL during migration, 
+                    use feature flags for gradual rollout
+                </li>
+                <li>
+                    <strong>Risk:</strong> Client-side caching more complex than REST<br>
+                    <strong>Mitigation:</strong> Use Apollo Client's normalized cache with careful cache key design, 
+                    document cache patterns for team
+                </li>
+            </ul>
+        </section>
+
+        <!-- Related Decisions -->
+        <section class="content">
+            <h2>Related Decisions</h2>
+            <div class="related-adrs">
+                <a href="#" class="related-adr">
+                    <span class="related-adr-number">ADR-0008</span>
+                    <span class="related-adr-title">Adopt TypeScript for Frontend Applications</span>
+                </a>
+                <a href="#" class="related-adr">
+                    <span class="related-adr-number">ADR-0011</span>
+                    <span class="related-adr-title">Implement Backend Service Mesh with Istio</span>
+                </a>
+                <a href="#" class="related-adr">
+                    <span class="related-adr-number">ADR-0013</span>
+                    <span class="related-adr-title">Standardize on React for Web Applications</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- More Information -->
+        <section class="content">
+            <h2>More Information</h2>
+            <ul>
+                <li><a href="#">RFC: GraphQL Migration Strategy</a> - Detailed technical RFC with implementation plan</li>
+                <li><a href="#">Performance Benchmarks</a> - Load testing results comparing REST vs GraphQL</li>
+                <li><a href="#">Training Materials</a> - Internal GraphQL best practices guide</li>
+                <li><a href="#">Migration Guide</a> - Step-by-step guide for teams migrating features</li>
+            </ul>
+        </section>
+    </div>
+</body>
+</html>
